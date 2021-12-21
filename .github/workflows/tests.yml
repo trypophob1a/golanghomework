@@ -63,7 +63,7 @@ jobs:
 
       - name: Bash tests
         shell: bash
-        run: ./test.sh
+        run: sudo ./test.sh
         if: contains('homework_01 homework_07 homework_08 homework_11', env.BRANCH)
         working-directory: ${{ env.BRANCH }}
 
