@@ -2,6 +2,7 @@ package homework02unpackstring
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -42,4 +43,9 @@ func TestUnpackInvalidString(t *testing.T) {
 			require.Truef(t, errors.Is(err, ErrInvalidString), "actual error %q", err)
 		})
 	}
+}
+
+func TestS(t *testing.T) {
+	res, _ := Unpack("a0b")
+	fmt.Println(res)
 }
