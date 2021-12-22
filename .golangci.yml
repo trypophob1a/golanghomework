@@ -2,7 +2,6 @@ run:
   tests: true
   build-tags:
     - bench
-    - !bench
 
 linters-settings:
   funlen:
@@ -72,3 +71,4 @@ linters:
     - varcheck
     - wastedassign
     - whitespace
+    - wsl
