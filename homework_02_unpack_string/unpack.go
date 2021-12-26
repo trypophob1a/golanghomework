@@ -9,47 +9,53 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
-func Unpack(str string) (string, error) {
-	if str == "" {
+func Unpack(srcStr string) (string, error) {
+	if srcStr == "" {
 		return "", nil
 	}
 
-	runes := []rune(str)
+	runes := []rune(srcStr)
 
 	if unicode.IsDigit(runes[0]) {
 		return "", ErrInvalidString
 	}
 
 	var (
-		unpack   string
-		prevRune rune
+		result       strings.Builder
+		isEscapeFlag bool
 	)
 
-	for _, r := range runes {
-		if unicode.IsDigit(r) && unicode.IsDigit(prevRune) {
-			return "", ErrInvalidString
-		}
+	for i := 0; i < len(runes); i++ {
+		letter := runes[i]
 
-		if unicode.IsDigit(r) {
-			count, err := strconv.Atoi(string(r))
-			if err != nil {
-				return "", err
+		if letter == '\\' && !isEscapeFlag {
+			if !unicode.IsDigit(runes[i+1]) && runes[i+1] != '\\' {
+				return "", ErrInvalidString
 			}
 
-			if count > 0 {
-				unpack += strings.Repeat(string(prevRune), count-1)
-			} else {
-				unpack = strings.Replace(unpack, string(prevRune), "", 1)
-			}
-
-			prevRune = r
+			isEscapeFlag = true
 
 			continue
 		}
 
-		unpack += string(r)
-		prevRune = r
+		if unicode.IsDigit(letter) && !isEscapeFlag {
+			count, _ := strconv.Atoi(string(letter))
+			result.WriteString(strings.Repeat(string(runes[i-1]), count))
+
+			continue
+		}
+
+		isEscapeFlag = false
+		if len(runes) > i+1 && unicode.IsDigit(runes[i+1]) && !isEscapeFlag {
+			if len(runes) > i+2 && unicode.IsDigit(runes[i+2]) {
+				return "", ErrInvalidString
+			}
+
+			continue
+		}
+
+		result.WriteRune(letter)
 	}
 
-	return unpack, nil
+	return result.String(), nil
 }
