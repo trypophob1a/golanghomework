@@ -1,4 +1,4 @@
-package homework03QuickSort
+package homework03quicksort
 
 import (
 	"fmt"
