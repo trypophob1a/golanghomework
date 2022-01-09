@@ -1,4 +1,4 @@
-package homework_03
+package homework03
 
 import (
 	"fmt"

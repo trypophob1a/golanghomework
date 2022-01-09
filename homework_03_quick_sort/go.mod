@@ -1,4 +1,4 @@
-module github.com/trypophob1a/golanghomework/homework_03
+module github.com/trypophob1a/golanghomework/homework_03_quick_sort
 
 go 1.17
 

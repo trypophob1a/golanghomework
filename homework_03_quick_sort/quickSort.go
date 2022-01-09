@@ -1,4 +1,4 @@
-package homework_03
+package homework03
 
 func QuickSort(arr []int) []int {
 	return fullSorted(arr, 0, len(arr)-1)
