@@ -1,5 +1,10 @@
 package hw04lrucache
 
+import (
+	"fmt"
+	"strings"
+)
+
 type List interface {
 	Len() int
 	Front() *ListItem
@@ -151,6 +156,18 @@ func (l *list) MoveToFront(i *ListItem) {
 	i.Next = l.front
 	l.front.Prev = i
 	l.front = i
+}
+
+func (l list) String() string {
+	listNew := l.front
+	listToString := strings.Builder{}
+
+	for listNew != nil {
+		listToString.WriteString(fmt.Sprintf("%v, ", listNew.Value))
+		listNew = listNew.Next
+	}
+
+	return "{" + listToString.String()[:listToString.Len()-2] + "}"
 }
 
 func NewList() List {
