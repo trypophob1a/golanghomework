@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ !contains(github.ref, 'calendar') }}
     steps:
-      - name: Extract branch name
-        run: echo "::save-state BRANCH={GITHUB_REF#refs/heads/}::{GITHUB_ENV}"
+      - name: save-branch-name
+        run: echo "::save-branch-name BRANCH={GITHUB_REF#refs/heads/}::{GITHUB_ENV}"
 
       - name: Set up Go
         uses: actions/setup-go@v2
@@ -25,8 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ !contains(github.ref, 'calendar') }}
     steps:
-      - name: Extract branch name
-        run: echo "::save-state BRANCH={GITHUB_REF#refs/heads/}::{GITHUB_ENV}"
+      - name: save-branch-name
+        run: echo "::save-branch-name BRANCH={GITHUB_REF#refs/heads/}::{GITHUB_ENV}"
 
       - name: Check out code
         uses: actions/checkout@v2
@@ -41,8 +41,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ !contains(github.ref, 'calendar') }}
     steps:
-      - name: Extract branch name
-        run: echo "::save-state BRANCH={GITHUB_REF#refs/heads/}::{GITHUB_ENV}"
+      - name: save-state-branch
+        run: echo "::save-state-branch BRANCH={GITHUB_REF#refs/heads/}::{GITHUB_ENV}"
 
       - name: Set up Go
         uses: actions/setup-go@v2
