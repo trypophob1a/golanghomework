@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"runtime"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -33,7 +34,7 @@ func TestRun(t *testing.T) {
 		workersCount := 10
 		maxErrorsCount := 23
 		err := Run(tasks, workersCount, maxErrorsCount)
-
+		fmt.Printf("\n\n>>>>>>> !%v! <<<<<<<<<<\n\n", err)
 		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
 		require.LessOrEqual(t, runTasksCount, int32(workersCount+maxErrorsCount), "extra tasks were started")
 	})
@@ -88,4 +89,64 @@ func TestRun(t *testing.T) {
 
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 	})
+
+	t.Run("test empty", func(t *testing.T) {
+		Empty()
+	})
+
+	t.Run("test without error with require.Eventually", func(t *testing.T) {
+		tasksCount := 50
+		tasks := make([]Task, 0, tasksCount)
+
+		var runTasksCount int32
+
+		for i := 0; i < tasksCount; i++ {
+			tasks = append(tasks, func() error {
+				atomic.AddInt32(&runTasksCount, 1)
+				return nil
+			})
+		}
+
+		workersCount := 5
+		maxErrorsCount := 1
+
+		start := time.Now()
+		err := Run(tasks, workersCount, maxErrorsCount)
+		elapsedTime := time.Since(start)
+		require.NoError(t, err)
+
+		require.Eventually(t, func() bool {
+			return atomic.LoadInt32(&runTasksCount) == int32(tasksCount)
+		}, 5*time.Second, 100*time.Millisecond, "not all tasks were completed")
+
+		require.LessOrEqual(t, int64(elapsedTime), int64(time.Duration(10*tasksCount)*time.Millisecond), "tasks were run sequentially?")
+	})
+}
+
+func TestRunMultipleGoroutines(t *testing.T) {
+	defer goleak.VerifyNone(t)
+
+	tasks := []Task{
+		func() error {
+			return nil
+		},
+		func() error {
+			return nil
+		},
+	}
+
+	n := 1
+	m := 0
+
+	err := Run(tasks, n, m)
+	if err != nil {
+		t.Errorf("Expected no error, but got %v", err)
+	}
+
+	if runtime.NumGoroutine() != n+1 {
+		t.Errorf("Expected %d goroutines, but got %d",
+			n+1,
+			runtime.NumGoroutine(),
+		)
+	}
 }

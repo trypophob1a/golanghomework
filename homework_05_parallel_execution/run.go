@@ -2,6 +2,7 @@ package homework05parallelexecution
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 	"sync/atomic"
 )
@@ -10,47 +11,48 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type Task func() error
 
-type worker struct {
-	errorLimit   uint32
-	errorCounter uint32
-	wg           *sync.WaitGroup
-}
-
-func newWorker(errorLimit uint32) *worker {
-	wg := &sync.WaitGroup{}
-	return &worker{errorLimit: errorLimit, wg: wg}
-}
-
-func process(Task Task, queue <-chan struct{}, worker *worker) {
-	defer func() {
-		<-queue
-		worker.wg.Done()
-	}()
-	if atomic.LoadUint32(&worker.errorCounter) >= worker.errorLimit {
-		return
-	}
-	err := Task()
+func Empty() {
+	tasks := make([]Task, 0)
+	err := Run(tasks, 0, 0)
 	if err != nil {
-		atomic.AddUint32(&worker.errorCounter, 1)
-		return
+		fmt.Printf("%v\n", err)
 	}
 }
 
+// Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n int, m int) error {
-	queue := make(chan struct{}, n)
-	defer close(queue)
-	errLimit := uint32(m)
-	worker := newWorker(errLimit)
+	queueTask := make(chan Task, n)
+	var errCounter uint32
+	errorLimit := uint32(m)
+	wg := &sync.WaitGroup{}
+
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		go func(counter *uint32) {
+			defer wg.Done()
+
+			for task := range queueTask {
+				if atomic.LoadUint32(counter) >= errorLimit {
+					return
+				}
+
+				err := task()
+				if err != nil {
+					atomic.AddUint32(counter, 1)
+				}
+			}
+		}(&errCounter)
+	}
 
 	for _, task := range tasks {
-		if atomic.LoadUint32(&worker.errorCounter) >= errLimit {
-			return ErrErrorsLimitExceeded
-		}
-		queue <- struct{}{}
-		worker.wg.Add(1)
-		go process(task, queue, worker)
+		queueTask <- task
+	}
+	close(queueTask)
+	wg.Wait()
+
+	if errCounter >= errorLimit && errorLimit != 0 {
+		return ErrErrorsLimitExceeded
 	}
 
-	worker.wg.Wait()
 	return nil
 }
