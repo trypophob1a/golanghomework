@@ -21,6 +21,7 @@ func Empty() {
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n int, m int) error {
+
 	queueTask := make(chan Task, n)
 	var errCounter uint32
 	errorLimit := uint32(m)
