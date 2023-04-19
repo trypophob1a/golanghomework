@@ -14,7 +14,6 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	}
 	output := in
 	for _, stage := range stages {
-
 		stageCh := make(chan interface{})
 		go func(output Out, stageCh Bi, done In) {
 			defer close(stageCh)
