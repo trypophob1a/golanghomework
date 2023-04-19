@@ -14,7 +14,7 @@ jobs:
     if: ${{ !contains(github.ref, 'calendar') }}
     steps:
       - name: save-branch-name
-        run: echo "BRANCH={GITHUB_REF#refs/heads/} >> {GITHUB_ENV}"
+        run: echo "{BRANCH}={GITHUB_REF#refs/heads/} >> $GITHUB_ENV"
 
       - name: Set up Go
         uses: actions/setup-go@v2
@@ -26,7 +26,7 @@ jobs:
     if: ${{ !contains(github.ref, 'calendar') }}
     steps:
       - name: save-branch-name
-        run: echo "BRANCH={GITHUB_REF#refs/heads/} >> {GITHUB_ENV}"
+        run: echo "{BRANCH}={GITHUB_REF#refs/heads/} >> $GITHUB_ENV"
 
       - name: Check out code
         uses: actions/checkout@v2
@@ -42,7 +42,7 @@ jobs:
     if: ${{ !contains(github.ref, 'calendar') }}
     steps:
       - name: save-state-branch
-        run: echo "BRANCH={GITHUB_REF#refs/heads/} >> {GITHUB_ENV}"
+        run: echo "{BRANCH}={GITHUB_REF#refs/heads/} >> $GITHUB_ENV"
 
       - name: Set up Go
         uses: actions/setup-go@v2
