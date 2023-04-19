@@ -27,7 +27,8 @@ jobs:
     steps:
       - name: save-branch-name
         run: echo "{BRANCH}={GITHUB_REF#refs/heads/} >> $GITHUB_ENV"
-
+      - name: tesss
+        run: echo "tesss!!!!!! $GITHUB_ENV"
       - name: Check out code
         uses: actions/checkout@v2
 
