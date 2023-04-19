@@ -9,10 +9,14 @@ type (
 type Stage func(in In) (out Out)
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
+	if len(stages) == 0 {
+		return done
+	}
 	output := in
 	for _, stage := range stages {
+
 		stageCh := make(chan interface{})
-		go func(output Out, stageCh Bi) {
+		go func(output Out, stageCh Bi, done In) {
 			defer close(stageCh)
 			for {
 				select {
@@ -25,8 +29,9 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 					stageCh <- val
 				}
 			}
-		}(output, stageCh)
+		}(output, stageCh, done)
 		output = stage(stageCh)
 	}
+
 	return output
 }
